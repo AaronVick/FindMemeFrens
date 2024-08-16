@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 export async function getServerSideProps() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
@@ -7,6 +8,15 @@ export async function getServerSideProps() {
 }
 
 export default function Home({ baseUrl }) {
+  const [apiMessage, setApiMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/hello')
+      .then(response => response.json())
+      .then(data => setApiMessage(data.message))
+      .catch(error => setApiMessage('Error fetching API'));
+  }, []);
+
   return (
     <>
       <Head>
@@ -23,6 +33,7 @@ export default function Home({ baseUrl }) {
         <p>This is a Farcaster frame. View it on a Farcaster client to interact.</p>
         <Image src="/success.png" alt="Success" width={500} height={300} />
         <p>Direct link to image: <a href="/success.png" target="_blank">/success.png</a></p>
+        <p>API Test: {apiMessage}</p>
       </main>
     </>
   );
