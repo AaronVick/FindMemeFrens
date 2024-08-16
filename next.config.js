@@ -25,6 +25,8 @@ const nextConfig = {
     );
     return config;
   },
+  // This ensures Next.js outputs files in a format Vercel expects
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
