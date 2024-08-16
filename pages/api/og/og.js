@@ -1,5 +1,8 @@
 import { ImageResponse } from '@vercel/og';
 
+const proxiedImageUrl = `https://success-omega.vercel.app/api/proxy?url=${encodeURIComponent(imageUrl)}`;
+
+
 export const config = {
   runtime: 'edge',  // Run as an Edge function
 };
