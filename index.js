@@ -3,8 +3,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 export async function getServerSideProps() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app/';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
   const defaultImageUrl = `${baseUrl}/success.png`;
+
+  console.log('Base URL:', baseUrl);
+  console.log('Default Image URL:', defaultImageUrl);
 
   return {
     props: { 
@@ -15,6 +18,10 @@ export async function getServerSideProps() {
 }
 
 const Home = ({ baseUrl, defaultImageUrl }) => {
+  console.log('Rendering Home component');
+  console.log('Base URL (client):', baseUrl);
+  console.log('Default Image URL (client):', defaultImageUrl);
+
   return (
     <>
       <Head>
@@ -27,7 +34,7 @@ const Home = ({ baseUrl, defaultImageUrl }) => {
       </Head>
       <div>
         <h1>Find a Fren</h1>
-        <img src={defaultImageUrl} alt="Default Success Image" />
+        <img src={defaultImageUrl} alt="Default Success Image" width={500} height={300} />
         <div>
           <button>Find a Fren</button>
         </div>
