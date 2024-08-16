@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -16,6 +18,17 @@ const nextConfig = {
   },
   images: {
     domains: ['success-omega.vercel.app'],
+  },
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.NEXT_PUBLIC_BUILD_TIME': JSON.stringify(new Date().toISOString()),
+      })
+    );
+    return config;
+  },
+  experimental: {
+    outputStandalone: true,
   },
 };
 

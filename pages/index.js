@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useEffect } from 'react';
 
 export async function getServerSideProps() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
@@ -6,6 +7,10 @@ export async function getServerSideProps() {
 }
 
 export default function Home({ baseUrl }) {
+  useEffect(() => {
+    console.log('Build time:', process.env.NEXT_PUBLIC_BUILD_TIME);
+  }, []);
+
   return (
     <>
       <Head>
@@ -19,6 +24,7 @@ export default function Home({ baseUrl }) {
         <h1>Find a Fren in Success</h1>
         <p>Success Matters</p>
         <img src={`${baseUrl}/success.png`} alt="Success" width={500} height={300} />
+        <p>If you can see this image, static file serving is working.</p>
       </main>
     </>
   );
