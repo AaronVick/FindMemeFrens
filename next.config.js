@@ -27,8 +27,9 @@ const nextConfig = {
     );
     return config;
   },
+  output: 'standalone', // This replaces experimental.outputStandalone
   experimental: {
-    outputStandalone: true,
+    // Add any other experimental features you need here
   },
 };
 
