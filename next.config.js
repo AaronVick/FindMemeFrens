@@ -17,7 +17,6 @@ const nextConfig = {
   images: {
     domains: ['success-omega.vercel.app'],
   },
-  output: 'standalone',
 };
 
 module.exports = nextConfig;
