@@ -93,7 +93,7 @@ async function getAllUserData(fid) {
 async function fetchRandomUser() {
   let result = null;
   let attempts = 0;
-  const maxAttempts = 10; // Increased from 5 to 10
+  const maxAttempts = 10;
 
   while (!result && attempts < maxAttempts) {
     try {
@@ -138,33 +138,42 @@ export default async function handler(req, res) {
           subtitle: result.userData.bio || '',
           image: result.userData.pfp || ''
         });
-        const ogResponse = await fetch(`${OG_IMAGE_API}?${ogImageParams.toString()}`);
-        const ogData = await ogResponse.json();
-        const ogImageUrl = ogData.imageUrl;
         
-        console.log('Generated OG Image URL:', ogImageUrl);
+        try {
+          const ogResponse = await fetch(`${OG_IMAGE_API}?${ogImageParams.toString()}`);
+          if (!ogResponse.ok) {
+            throw new Error(`OG image generation failed with status: ${ogResponse.status}`);
+          }
+          const ogData = await ogResponse.json();
+          const ogImageUrl = ogData.imageUrl;
+          
+          console.log('Generated OG Image URL:', ogImageUrl);
 
-        res.setHeader('Content-Type', 'text/html');
-        res.status(200).send(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Find a Fren Result</title>
-              <meta property="fc:frame" content="vNext" />
-              <meta property="fc:frame:image" content="${ogImageUrl}" />
-              <meta property="fc:frame:button:1" content="View Profile" />
-              <meta property="fc:frame:button:1:action" content="link" />
-              <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
-              <meta property="fc:frame:button:2" content="Find Another Fren" />
-              <meta property="fc:frame:button:2:action" content="post" />
-              <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL}/api/findFren" />
-            </head>
-            <body>
-              <h1>Find a Fren Result</h1>
-              <p>Check out your new fren on Farcaster!</p>
-            </body>
-          </html>
-        `);
+          res.setHeader('Content-Type', 'text/html');
+          res.status(200).send(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>Find a Fren Result</title>
+                <meta property="fc:frame" content="vNext" />
+                <meta property="fc:frame:image" content="${ogImageUrl}" />
+                <meta property="fc:frame:button:1" content="View Profile" />
+                <meta property="fc:frame:button:1:action" content="link" />
+                <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
+                <meta property="fc:frame:button:2" content="Find Another Fren" />
+                <meta property="fc:frame:button:2:action" content="post" />
+                <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL}/api/findFren" />
+              </head>
+              <body>
+                <h1>Find a Fren Result</h1>
+                <p>Check out your new fren on Farcaster!</p>
+              </body>
+            </html>
+          `);
+        } catch (ogError) {
+          console.error('Error generating OG image:', ogError);
+          throw ogError; // This will be caught by the outer try-catch
+        }
       } else {
         console.log('Failed to find a random user after maximum attempts');
         res.setHeader('Content-Type', 'text/html');

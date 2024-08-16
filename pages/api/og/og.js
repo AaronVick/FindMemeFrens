@@ -17,30 +17,30 @@ async function fetchImageWithProxy(imageUrl) {
 }
 
 export default async function handler(req) {
-  const { searchParams } = new URL(req.url);
-  const title = searchParams.get('title') || 'Farcaster User';
-  const subtitle = searchParams.get('subtitle') || 'This is a user on Farcaster.';
-  const image = searchParams.get('image');
+  try {
+    const { searchParams } = new URL(req.url);
+    const title = searchParams.get('title') || 'Farcaster User';
+    const subtitle = searchParams.get('subtitle') || 'This is a user on Farcaster.';
+    const image = searchParams.get('image');
 
-  console.log('Received parameters:', { title, subtitle, image });
+    console.log('Received parameters:', { title, subtitle, image });
 
-  let imageData = null;
+    let imageData = null;
 
-  if (image) {
-    try {
-      imageData = await fetchImageWithProxy(image);
-      console.log('Successfully fetched image data');
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      // Fall back to default image
+    if (image) {
+      try {
+        imageData = await fetchImageWithProxy(image);
+        console.log('Successfully fetched image data');
+      } catch (error) {
+        console.error('Error fetching image:', error);
+        // Fall back to default image
+        imageData = await fetchImageWithProxy(`${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`);
+      }
+    } else {
+      console.log('No image URL provided, using default image');
       imageData = await fetchImageWithProxy(`${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`);
     }
-  } else {
-    console.log('No image URL provided, using default image');
-    imageData = await fetchImageWithProxy(`${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`);
-  }
 
-  try {
     const ogImage = new ImageResponse(
       (
         <div
@@ -109,7 +109,10 @@ export default async function handler(req) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error generating image response:', error);
-    return new Response(`Failed to generate image: ${error.message}`, { status: 500 });
+    console.error('Error in OG image generation:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
