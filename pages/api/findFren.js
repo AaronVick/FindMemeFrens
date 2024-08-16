@@ -3,7 +3,7 @@ import axios from 'axios';
 import path from 'path';
 
 const PINATA_HUB_API = 'https://hub.pinata.cloud/v1';
-const OG_IMAGE_API = `${process.env.NEXT_PUBLIC_BASE_URL}/api/og`;
+const OG_IMAGE_API = `${process.env.NEXT_PUBLIC_BASE_URL}/ogImage`;
 
 const USER_DATA_TYPES = {
   PFP: 1,
@@ -132,54 +132,36 @@ export default async function handler(req, res) {
       if (result) {
         console.log('Successfully found a random user:', result.userData.username);
         
-        // Generate OG image
-        const ogImageParams = new URLSearchParams({
+        // Generate OG image URL
+        const ogImageUrl = `${OG_IMAGE_API}?` + new URLSearchParams({
           title: result.userData.display || result.userData.username,
           subtitle: result.userData.bio || '',
           image: result.userData.pfp || ''
-        });
+        }).toString();
         
-        const ogImageUrl = `${OG_IMAGE_API}?${ogImageParams.toString()}`;
-        console.log('Requesting OG image from:', ogImageUrl);
-        
-        try {
-          const ogResponse = await fetch(ogImageUrl);
-          console.log('OG image response status:', ogResponse.status);
-          
-          if (!ogResponse.ok) {
-            throw new Error(`OG image generation failed with status: ${ogResponse.status}`);
-          }
-          
-          const ogImageBlob = await ogResponse.blob();
-          const ogImageObjectUrl = URL.createObjectURL(ogImageBlob);
-          
-          console.log('Generated OG Image Object URL:', ogImageObjectUrl);
+        console.log('Generated OG Image URL:', ogImageUrl);
 
-          res.setHeader('Content-Type', 'text/html');
-          res.status(200).send(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>Find a Fren Result</title>
-                <meta property="fc:frame" content="vNext" />
-                <meta property="fc:frame:image" content="${ogImageObjectUrl}" />
-                <meta property="fc:frame:button:1" content="View Profile" />
-                <meta property="fc:frame:button:1:action" content="link" />
-                <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
-                <meta property="fc:frame:button:2" content="Find Another Fren" />
-                <meta property="fc:frame:button:2:action" content="post" />
-                <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL}/api/findFren" />
-              </head>
-              <body>
-                <h1>Find a Fren Result</h1>
-                <p>Check out your new fren on Farcaster!</p>
-              </body>
-            </html>
-          `);
-        } catch (ogError) {
-          console.error('Error generating OG image:', ogError);
-          throw ogError; // This will be caught by the outer try-catch
-        }
+        res.setHeader('Content-Type', 'text/html');
+        res.status(200).send(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Find a Fren Result</title>
+              <meta property="fc:frame" content="vNext" />
+              <meta property="fc:frame:image" content="${ogImageUrl}" />
+              <meta property="fc:frame:button:1" content="View Profile" />
+              <meta property="fc:frame:button:1:action" content="link" />
+              <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
+              <meta property="fc:frame:button:2" content="Find Another Fren" />
+              <meta property="fc:frame:button:2:action" content="post" />
+              <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL}/api/findFren" />
+            </head>
+            <body>
+              <h1>Find a Fren Result</h1>
+              <p>Check out your new fren on Farcaster!</p>
+            </body>
+          </html>
+        `);
       } else {
         console.log('Failed to find a random user after maximum attempts');
         res.setHeader('Content-Type', 'text/html');

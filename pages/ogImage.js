@@ -13,7 +13,7 @@ export default async function handler(req) {
   console.log('OG image generation request received', { title, subtitle, image });
 
   try {
-    const ogImage = new ImageResponse(
+    return new ImageResponse(
       (
         <div
           style={{
@@ -70,9 +70,6 @@ export default async function handler(req) {
         height: 630,
       }
     );
-
-    console.log('OG image generated successfully');
-    return ogImage;
   } catch (error) {
     console.error('Error in OG image generation:', error);
     return new Response(JSON.stringify({ error: error.message }), {
