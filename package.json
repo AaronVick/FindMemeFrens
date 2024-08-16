@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "frog dev"
+    "dev": "frog dev",
+    "deploy": "frog vercel-build && vercel deploy"
   },
   "dependencies": {
     "axios": "^1.7.4",
     "frog": "latest",
-    "hono": "latest",
-    "open": "^10.1.0"
+    "hono": "latest"
   }
 }

@@ -1,46 +1,37 @@
-import Head from 'next/head';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { Frog } from 'frog';
+import { serveStatic } from 'hono/serve-static.module';
+import { findFren } from './findFren.js';
 
-export async function getServerSideProps() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
-  const defaultImageUrl = `${baseUrl}/success.png`;
+// Initialize Frog
+const app = new Frog({
+  basePath: '/',
+  // Supply your own hub if you have one
+  hubApiUrl: 'https://hub.pinata.cloud/v1',
+});
 
-  console.log('Base URL:', baseUrl);
-  console.log('Default Image URL:', defaultImageUrl);
+// Serve static files
+app.use('/public/*', serveStatic({ root: './' }));
 
-  return {
-    props: { 
-      baseUrl,
-      defaultImageUrl,
-    }
-  };
-}
+// Define your frame
+app.frame('/', (c) => {
+  const { buttonValue, status } = c;
+  
+  if (status === 'initial') {
+    return c.res({
+      image: `${process.env.NEXT_PUBLIC_BASE_URL}/public/success.png`,
+      intents: [
+        {
+          type: 'button',
+          action: 'post',
+          label: 'Find a Fren',
+        },
+      ],
+    });
+  }
 
-const Home = ({ baseUrl, defaultImageUrl }) => {
-  console.log('Rendering Home component');
-  console.log('Base URL (client):', baseUrl);
-  console.log('Default Image URL (client):', defaultImageUrl);
+  if (buttonValue === 'Find a Fren') {
+    return findFren(c);
+  }
+});
 
-  return (
-    <>
-      <Head>
-        <title>Find a Fren Farcaster Frame</title>
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content={defaultImageUrl} />
-        
-        <meta property="fc:frame:button:1" content="Find a Fren" />
-        <meta property="fc:frame:post_url" content={`${baseUrl}/api/findFren`} />
-      </Head>
-      <div>
-        <h1>Find a Fren</h1>
-        <img src={defaultImageUrl} alt="Default Success Image" width={500} height={300} />
-        <div>
-          <button>Find a Fren</button>
-        </div>
-      </div>
-    </>
-  );
-};
-
-export default Home;
+export default app;
