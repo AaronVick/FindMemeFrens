@@ -4,6 +4,16 @@ export const config = {
   runtime: 'edge',
 };
 
+async function fetchImageWithProxy(imageUrl) {
+  const proxyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/proxy?url=${encodeURIComponent(imageUrl)}`;
+  console.log('Fetching image with proxy:', proxyUrl);
+  const response = await fetch(proxyUrl);
+  if (!response.ok) {
+    throw new Error(`Proxy fetch failed: ${response.status} ${response.statusText}`);
+  }
+  return await response.arrayBuffer();
+}
+
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   const title = searchParams.get('title') || 'Farcaster User';
@@ -12,33 +22,20 @@ export default async function handler(req) {
 
   console.log('Received parameters:', { title, subtitle, image });
 
-  let imageUrl = image;
-  let fetchedImage = null;
+  let imageData = null;
 
-  if (imageUrl) {
+  if (image) {
     try {
-      console.log('Attempting to fetch image:', imageUrl);
-      const response = await fetch(imageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Referer': 'https://success-omega.vercel.app/',
-        },
-      });
-
-      if (!response.ok) {
-        console.error(`Failed to fetch image: ${imageUrl}, status: ${response.status}`);
-        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-      }
-
-      fetchedImage = await response.arrayBuffer();
-      console.log('Successfully fetched image');
+      imageData = await fetchImageWithProxy(image);
+      console.log('Successfully fetched image data');
     } catch (error) {
-      console.error(`Error fetching image: ${imageUrl}`, error);
-      imageUrl = 'https://success-omega.vercel.app/default-avatar.png'; // Fallback to a default image
+      console.error('Error fetching image:', error);
+      // Fall back to default image
+      imageData = await fetchImageWithProxy(`${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`);
     }
   } else {
     console.log('No image URL provided, using default image');
-    imageUrl = 'https://success-omega.vercel.app/default-avatar.png';
+    imageData = await fetchImageWithProxy(`${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`);
   }
 
   try {
@@ -81,7 +78,7 @@ export default async function handler(req) {
             }}
           >
             <img
-              src={fetchedImage ? fetchedImage : imageUrl}
+              src={imageData}
               alt="User Profile"
               style={{
                 width: '200px',
