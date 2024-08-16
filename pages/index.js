@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Image from 'next/image';
 
 export async function getServerSideProps() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
@@ -20,6 +21,8 @@ export default function Home({ baseUrl }) {
       <main>
         <h1>Find a Fren Farcaster Frame</h1>
         <p>This is a Farcaster frame. View it on a Farcaster client to interact.</p>
+        <Image src="/success.png" alt="Success" width={500} height={300} />
+        <p>Direct link to image: <a href="/success.png" target="_blank">/success.png</a></p>
       </main>
     </>
   );
