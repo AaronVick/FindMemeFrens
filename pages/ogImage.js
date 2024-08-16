@@ -10,8 +10,6 @@ export default async function handler(req) {
   const subtitle = searchParams.get('subtitle') || 'This is a user on Farcaster.';
   const image = searchParams.get('image') || `${process.env.NEXT_PUBLIC_BASE_URL}/default-avatar.png`;
 
-  console.log('OG image generation request received', { title, subtitle, image });
-
   try {
     return new ImageResponse(
       (
