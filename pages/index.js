@@ -19,6 +19,11 @@ export default function Home({ baseUrl }) {
         <meta property="fc:frame:image" content={`${baseUrl}/success.png`} />
         <meta property="fc:frame:button:1" content="Find a Fren" />
         <meta property="fc:frame:post_url" content={`${baseUrl}/api/findFren`} />
+
+        <meta property="fc:frame:button:2" content="Share" />
+        <meta property="fc:frame:button:2:action" content="link" />
+        <meta property="fc:frame:button:2:target" content="https://warpcast.com/~/compose?text=Let's+meet+some+frens+in+/success.%0A%0AFrame+by+%40aaronv&embeds[]=https%3A%2F%2Fsuccess-omega.vercel.app%2F" />
+
       </Head>
       <main>
         <h1>Find a Fren in Success</h1>
