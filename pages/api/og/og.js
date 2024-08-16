@@ -1,4 +1,6 @@
 import { ImageResponse } from '@vercel/og';
+import { writeFile } from 'fs/promises';
+import path from 'path';
 
 export const config = {
   runtime: 'edge',
@@ -39,7 +41,7 @@ export default async function handler(req) {
   }
 
   try {
-    return new ImageResponse(
+    const ogImage = new ImageResponse(
       (
         <div
           style={{
@@ -96,6 +98,16 @@ export default async function handler(req) {
         height: 630,
       }
     );
+
+    // Save the image to a public directory
+    const fileName = `og-image-${Date.now()}.png`;
+    const filePath = path.join(process.cwd(), 'public', fileName);
+    await writeFile(filePath, await ogImage.arrayBuffer());
+
+    // Return the URL of the saved image
+    return new Response(JSON.stringify({ imageUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${fileName}` }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Error generating image response:', error);
     return new Response(`Failed to generate image: ${error.message}`, { status: 500 });

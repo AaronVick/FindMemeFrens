@@ -93,7 +93,7 @@ async function getAllUserData(fid) {
 async function fetchRandomUser() {
   let result = null;
   let attempts = 0;
-  const maxAttempts = 5;
+  const maxAttempts = 10; // Increased from 5 to 10
 
   while (!result && attempts < maxAttempts) {
     try {
@@ -102,8 +102,13 @@ async function fetchRandomUser() {
       
       result = await searchFarcasterByName(randomValue);
       attempts++;
-      if (!result && attempts < maxAttempts) {
-        console.log('Retrying with a different random selection...');
+      
+      if (result && result.userData && result.userData.username) {
+        console.log(`Valid user found: ${result.userData.username}`);
+        return result;
+      } else {
+        console.log('Invalid or incomplete user data, retrying...');
+        result = null;
       }
     } catch (error) {
       console.error('Error in fetchRandomUser:', error);
@@ -111,7 +116,8 @@ async function fetchRandomUser() {
     }
   }
 
-  return result;
+  console.log(`Failed to find a valid user after ${maxAttempts} attempts`);
+  return null;
 }
 
 export default async function handler(req, res) {
@@ -126,8 +132,15 @@ export default async function handler(req, res) {
       if (result) {
         console.log('Successfully found a random user:', result.userData.username);
         
-        // Generate OG image URL
-        const ogImageUrl = `${OG_IMAGE_API}?title=${encodeURIComponent(result.userData.display || result.userData.username)}&subtitle=${encodeURIComponent(result.userData.bio || '')}&image=${encodeURIComponent(result.userData.pfp || '')}`;
+        // Generate OG image
+        const ogImageParams = new URLSearchParams({
+          title: result.userData.display || result.userData.username,
+          subtitle: result.userData.bio || '',
+          image: result.userData.pfp || ''
+        });
+        const ogResponse = await fetch(`${OG_IMAGE_API}?${ogImageParams.toString()}`);
+        const ogData = await ogResponse.json();
+        const ogImageUrl = ogData.imageUrl;
         
         console.log('Generated OG Image URL:', ogImageUrl);
 
@@ -139,7 +152,7 @@ export default async function handler(req, res) {
               <title>Find a Fren Result</title>
               <meta property="fc:frame" content="vNext" />
               <meta property="fc:frame:image" content="${ogImageUrl}" />
-              <meta property="fc:frame:button:1" content="View ${result.userData.username}'s Profile" />
+              <meta property="fc:frame:button:1" content="View Profile" />
               <meta property="fc:frame:button:1:action" content="link" />
               <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
               <meta property="fc:frame:button:2" content="Find Another Fren" />
