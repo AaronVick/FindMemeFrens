@@ -3,7 +3,7 @@ import axios from 'axios';
 import path from 'path';
 
 const PINATA_HUB_API = 'https://hub.pinata.cloud/v1';
-const OG_IMAGE_API = `${process.env.NEXT_PUBLIC_BASE_URL}/ogImage`;
+const OG_IMAGE_API = `${process.env.NEXT_PUBLIC_BASE_URL}/api/ogImage`;
 
 const USER_DATA_TYPES = {
   PFP: 1,
