@@ -1,17 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ['success-omega.vercel.app'],
-  },
-  async rewrites() {
+  async headers() {
     return [
       {
-        source: '/:path*',
-        destination: '/:path*',
+        source: '/success.png',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'image/png',
+          },
+        ],
       },
     ];
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

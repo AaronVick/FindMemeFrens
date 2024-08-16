@@ -1,10 +1,3 @@
-import Head from 'next/head';
-
-export async function getServerSideProps() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
-  return { props: { baseUrl } };
-}
-
 export default function Home({ baseUrl }) {
   return (
     <>
@@ -16,8 +9,9 @@ export default function Home({ baseUrl }) {
         <meta property="fc:frame:post_url" content={`${baseUrl}/api/findFren`} />
       </Head>
       <main>
-        <h1>Find a Fren Farcaster Frame</h1>
-        <p>This is a Farcaster frame. View it on a Farcaster client to interact.</p>
+        <h1>Find a Fren in Success</h1>
+        <p>Success Matters</p>
+        <img src={`${baseUrl}/success.png`} alt="Success" width={500} height={300} />
       </main>
     </>
   );
