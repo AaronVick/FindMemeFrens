@@ -1,9 +1,7 @@
 import { promises as fs } from 'fs';
 import axios from 'axios';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PINATA_HUB_API = 'https://hub.pinata.cloud/v1';
 const OG_IMAGE_API = 'https://success-omega.vercel.app/api/og';
 
@@ -15,12 +13,19 @@ const USER_DATA_TYPES = {
   USERNAME: 6
 };
 
-async function getRandomLine(filePath) {
-  console.log(`Reading file: ${filePath}`);
-  const data = await fs.readFile(filePath, 'utf8');
-  const lines = data.split('\n').filter(line => line.trim() !== '');
-  console.log(`Found ${lines.length} non-empty lines in the file`);
-  return lines[Math.floor(Math.random() * lines.length)];
+async function getRandomLine() {
+  console.log('Attempting to read success.txt');
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'success.txt');
+    console.log(`Reading file: ${filePath}`);
+    const data = await fs.readFile(filePath, 'utf8');
+    const lines = data.split('\n').filter(line => line.trim() !== '');
+    console.log(`Found ${lines.length} non-empty lines in the file`);
+    return lines[Math.floor(Math.random() * lines.length)];
+  } catch (error) {
+    console.error('Error reading success.txt:', error);
+    throw error;
+  }
 }
 
 async function searchFarcasterByName(name) {
@@ -97,19 +102,23 @@ function generateOgImageUrl(fid, userData) {
 }
 
 async function fetchRandomUser() {
-  const filePath = path.join(__dirname, 'success.txt');
   let result = null;
   let attempts = 0;
   const maxAttempts = 5;
 
   while (!result && attempts < maxAttempts) {
-    const randomValue = await getRandomLine(filePath);
-    console.log(`Attempt ${attempts + 1} - Random value selected: ${randomValue}`);
-    
-    result = await searchFarcasterByName(randomValue);
-    attempts++;
-    if (!result && attempts < maxAttempts) {
-      console.log('Retrying with a different random selection...');
+    try {
+      const randomValue = await getRandomLine();
+      console.log(`Attempt ${attempts + 1} - Random value selected: ${randomValue}`);
+      
+      result = await searchFarcasterByName(randomValue);
+      attempts++;
+      if (!result && attempts < maxAttempts) {
+        console.log('Retrying with a different random selection...');
+      }
+    } catch (error) {
+      console.error('Error in fetchRandomUser:', error);
+      attempts++;
     }
   }
 
