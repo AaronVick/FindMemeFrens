@@ -16,18 +16,28 @@ const USER_DATA_TYPES = {
 };
 
 async function getRandomLine(filePath) {
+  console.log(`Reading file: ${filePath}`);
   const data = await fs.readFile(filePath, 'utf8');
   const lines = data.split('\n').filter(line => line.trim() !== '');
+  console.log(`Found ${lines.length} non-empty lines in the file`);
   return lines[Math.floor(Math.random() * lines.length)];
 }
 
 async function searchFarcasterByName(name) {
+  console.log(`Searching for Farcaster user: ${name}`);
   try {
     const proof = await getUserNameProof(name);
-    if (!proof) return null;
+    if (!proof) {
+      console.log(`No proof found for user: ${name}`);
+      return null;
+    }
+    console.log(`Found proof for user: ${name}, FID: ${proof.fid}`);
 
     const userData = await getAllUserData(proof.fid);
+    console.log(`Retrieved user data for FID: ${proof.fid}`);
+
     const ogImageUrl = generateOgImageUrl(proof.fid, userData);
+    console.log(`Generated OG Image URL: ${ogImageUrl}`);
 
     return { userData, ogImageUrl };
   } catch (error) {
@@ -107,10 +117,25 @@ async function fetchRandomUser() {
 }
 
 export default async function handler(req, res) {
+  console.log('NEXT_PUBLIC_BASE_URL:', process.env.NEXT_PUBLIC_BASE_URL);
+  console.log('OG_IMAGE_API:', OG_IMAGE_API);
+
+  // Test OG Image API
+  try {
+    const testUrl = `${OG_IMAGE_API}?title=Test&subtitle=Test&image=https://example.com/image.jpg`;
+    const response = await axios.get(testUrl);
+    console.log('OG Image API test successful:', response.status);
+  } catch (error) {
+    console.error('OG Image API test failed:', error.message);
+  }
+
   if (req.method === 'POST') {
+    console.log('Received POST request to /api/findFren');
     try {
+      console.log('Attempting to fetch random user...');
       const result = await fetchRandomUser();
       if (result) {
+        console.log('Successfully found a random user:', result.userData.username);
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(`
           <!DOCTYPE html>
@@ -133,6 +158,7 @@ export default async function handler(req, res) {
           </html>
         `);
       } else {
+        console.log('Failed to find a random user after maximum attempts');
         res.setHeader('Content-Type', 'text/html');
         res.status(200).send(`
           <!DOCTYPE html>
@@ -174,6 +200,7 @@ export default async function handler(req, res) {
       `);
     }
   } else {
+    console.log(`Received ${req.method} request to /api/findFren`);
     res.setHeader('Content-Type', 'text/html');
     res.status(405).send(`
       <!DOCTYPE html>
