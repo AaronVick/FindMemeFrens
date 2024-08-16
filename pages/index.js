@@ -1,3 +1,10 @@
+import Head from 'next/head';
+
+export async function getServerSideProps() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://success-omega.vercel.app';
+  return { props: { baseUrl } };
+}
+
 export default function Home({ baseUrl }) {
   return (
     <>

@@ -9,5 +9,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/success.png', '/api/:path*'],
+  matcher: ['/api/:path*', '/success.png'],
 };

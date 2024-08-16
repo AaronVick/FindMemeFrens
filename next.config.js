@@ -4,15 +4,18 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/success.png',
+        source: '/(.*)',
         headers: [
           {
-            key: 'Content-Type',
-            value: 'image/png',
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
           },
         ],
       },
     ];
+  },
+  images: {
+    domains: ['success-omega.vercel.app'],
   },
 };
 
