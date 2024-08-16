@@ -17,6 +17,7 @@ async function fetchImageWithProxy(imageUrl) {
 }
 
 export default async function handler(req) {
+  console.log('OG image generation request received');
   try {
     const { searchParams } = new URL(req.url);
     const title = searchParams.get('title') || 'Farcaster User';
@@ -99,15 +100,13 @@ export default async function handler(req) {
       }
     );
 
-    // Save the image to a public directory
-    const fileName = `og-image-${Date.now()}.png`;
-    const filePath = path.join(process.cwd(), 'public', fileName);
-    await writeFile(filePath, await ogImage.arrayBuffer());
+    console.log('OG image generated successfully');
 
-    // Return the URL of the saved image
-    return new Response(JSON.stringify({ imageUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/${fileName}` }), {
-      headers: { 'Content-Type': 'application/json' },
+    // Instead of saving the file, we'll return the image directly
+    return new Response(await ogImage.arrayBuffer(), {
+      headers: { 'Content-Type': 'image/png' },
     });
+
   } catch (error) {
     console.error('Error in OG image generation:', error);
     return new Response(JSON.stringify({ error: error.message }), {

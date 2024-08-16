@@ -3,7 +3,7 @@ import axios from 'axios';
 import path from 'path';
 
 const PINATA_HUB_API = 'https://hub.pinata.cloud/v1';
-const OG_IMAGE_API = 'https://success-omega.vercel.app/api/og';
+const OG_IMAGE_API = `${process.env.NEXT_PUBLIC_BASE_URL}/api/og`;
 
 const USER_DATA_TYPES = {
   PFP: 1,
@@ -139,15 +139,21 @@ export default async function handler(req, res) {
           image: result.userData.pfp || ''
         });
         
+        const ogImageUrl = `${OG_IMAGE_API}?${ogImageParams.toString()}`;
+        console.log('Requesting OG image from:', ogImageUrl);
+        
         try {
-          const ogResponse = await fetch(`${OG_IMAGE_API}?${ogImageParams.toString()}`);
+          const ogResponse = await fetch(ogImageUrl);
+          console.log('OG image response status:', ogResponse.status);
+          
           if (!ogResponse.ok) {
             throw new Error(`OG image generation failed with status: ${ogResponse.status}`);
           }
-          const ogData = await ogResponse.json();
-          const ogImageUrl = ogData.imageUrl;
           
-          console.log('Generated OG Image URL:', ogImageUrl);
+          const ogImageBlob = await ogResponse.blob();
+          const ogImageObjectUrl = URL.createObjectURL(ogImageBlob);
+          
+          console.log('Generated OG Image Object URL:', ogImageObjectUrl);
 
           res.setHeader('Content-Type', 'text/html');
           res.status(200).send(`
@@ -156,7 +162,7 @@ export default async function handler(req, res) {
               <head>
                 <title>Find a Fren Result</title>
                 <meta property="fc:frame" content="vNext" />
-                <meta property="fc:frame:image" content="${ogImageUrl}" />
+                <meta property="fc:frame:image" content="${ogImageObjectUrl}" />
                 <meta property="fc:frame:button:1" content="View Profile" />
                 <meta property="fc:frame:button:1:action" content="link" />
                 <meta property="fc:frame:button:1:target" content="https://warpcast.com/${result.userData.username}" />
