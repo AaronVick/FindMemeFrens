@@ -93,7 +93,7 @@ async function getAllUserData(fid) {
 async function fetchRandomUser() {
   let result = null;
   let attempts = 0;
-  const maxAttempts = 10;
+  const maxAttempts = 20;
 
   while (!result && attempts < maxAttempts) {
     try {
