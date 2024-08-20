@@ -155,6 +155,10 @@ export default async function handler(req, res) {
               <meta property="fc:frame:button:2" content="Find Another Fren" />
               <meta property="fc:frame:button:2:action" content="post" />
               <meta property="fc:frame:post_url" content="${process.env.NEXT_PUBLIC_BASE_URL}/api/findFren" />
+              <meta property="fc:frame:button:3" content="Share" />
+              <meta property="fc:frame:button:3:action" content="link" />
+              <meta property="fc:frame:button:3:target" content="https://warpcast.com/~/compose?text=Let's+meet+some+frens+in+/memes.%0A%0AFrame+by+%40aaronv&embeds[]=https%3A%2F%2Ffind-meme-frens.vercel.app%2F" />
+
             </head>
             <body>
               <h1>Find a Fren Result</h1>
